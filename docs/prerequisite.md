@@ -6,6 +6,7 @@ Please have the following installed:
 |---|---|
 |Go |https://go.dev/learn/|
 |Chi Router|https://go-chi.io/#/README|
+|Httpie - cli REST testing|https://httpie.io|
 
 NOTE: for Windows users, please use a terminal that supports Linux commands. Here are a few
 
