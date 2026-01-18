@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -52,7 +52,9 @@ func (app *application) run(h http.Handler) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	log.Printf("Server started at %s", app.config.addr)
+	slog.Info(
+		"Server started at ",
+		"app.config.addr", app.config.addr)
 
 	return srv.ListenAndServe()
 }

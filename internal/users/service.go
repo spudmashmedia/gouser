@@ -2,7 +2,7 @@ package users
 
 import (
 	"context"
-	"log"
+	"log/slog"
 	"runtime"
 	"sync"
 	"time"
@@ -30,7 +30,9 @@ func (s *svc) GetUser(count int, isSimLongProcess bool) (UsersResponse, error) {
 	data, err := s.randomuserService.GetUsers(count)
 
 	if err != nil {
-		log.Printf("Users.GetUser: Error from external Service")
+		slog.Error(
+			"Users.GetUser: Error from external Service",
+			"err", err)
 
 		return UsersResponse{}, err
 	}
@@ -43,9 +45,12 @@ func (s *svc) GetUser(count int, isSimLongProcess bool) (UsersResponse, error) {
 		return dto, nil
 	}
 
-	log.Printf("Users.GetUser: Got %d from randomuser", len(data.Results))
+	slog.Debug(
+		"Users.GetUser: Got %d from randomuser",
+		"data_Results_length", len(data.Results))
 
-	log.Printf("Users.GetUser: Processing STARTED...")
+	slog.Debug("Users.GetUser: Processing STARTED...")
+
 	start := time.Now()
 
 	for i := 0; i < len(data.Results); i++ {
@@ -54,7 +59,6 @@ func (s *svc) GetUser(count int, isSimLongProcess bool) (UsersResponse, error) {
 		usr = User{}
 		usr.RuToUser(&data.Results[i])
 		dto.Results = append(dto.Results, usr)
-		// log.Printf("Task %d: DONE", i)
 
 		if isSimLongProcess {
 			time.Sleep(10 * time.Millisecond)
@@ -63,10 +67,15 @@ func (s *svc) GetUser(count int, isSimLongProcess bool) (UsersResponse, error) {
 
 	duration := time.Since(start)
 
-	log.Printf("Users.GetUser: Processing ENDED. Duration (%v)", duration)
+	slog.Debug(
+		"Users.GetUser: Processing ENDED.",
+		"duration", duration)
 
 	if err != nil {
-		log.Printf("Users.GetUser: FromRandomUser failed")
+		slog.Error(
+			"Users.GetUser: FromRandomUser failed",
+			"error", err)
+
 		return UsersResponse{}, err
 	}
 
@@ -78,7 +87,9 @@ func (s *svc) GetUserConcurrent(ctx context.Context, count int, isSimLongProcess
 	data, err := s.randomuserService.GetUsers(count)
 
 	if err != nil {
-		log.Printf("Users.GetUserConcurrent: Error from external Service")
+		slog.Error(
+			"Users.GetUserConcurrent: Error from external Service",
+			"error", err)
 
 		return UsersResponse{}, err
 	}
@@ -93,7 +104,8 @@ func (s *svc) GetUserConcurrent(ctx context.Context, count int, isSimLongProcess
 	// Setup Go routines to process randomuser.Results array
 	var wg sync.WaitGroup
 
-	log.Printf("Users.GetUserConcurrent: Processing STARTED...")
+	slog.Debug("Users.GetUserConcurrent: Processing STARTED...")
+
 	start := time.Now()
 
 	workerPoolSize := runtime.GOMAXPROCS(0)
@@ -143,16 +155,28 @@ func (s *svc) GetUserConcurrent(ctx context.Context, count int, isSimLongProcess
 	}
 
 	duration := time.Since(start)
-	log.Printf("Users.GetUserConcurrent: Processing ENDED. Duration (%v)", duration)
+
+	slog.Debug(
+		"Users.GetUserConcurrent: Processing ENDED.",
+		"duration", duration)
 
 	if err != nil {
-		log.Printf("Users.ConcurrentUsers: FromRandomUser failed")
+		slog.Error(
+			"Users.ConcurrentUsers: FromRandomUser failed",
+			"error", err)
+
 		return UsersResponse{}, err
 	}
 
 	// Final Validation, check response size equals original data size
-	log.Printf("Original size (%d), Processed Size (%d)", len(data.Results), len(dto.Results))
-	log.Printf("Are they the same size? %v", len(data.Results) == len(dto.Results))
+	slog.Debug(
+		"Original size (%d), Processed Size (%d)",
+		"data_results_length", len(data.Results),
+		"dto_results_length", len(dto.Results))
+
+	slog.Debug(
+		"Are they the same size? %v",
+		"isSameSize", len(data.Results) == len(dto.Results))
 
 	return dto, nil
 }

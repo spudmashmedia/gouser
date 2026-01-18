@@ -3,7 +3,7 @@ package randomuser
 import (
 	"encoding/json"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 )
 
@@ -34,12 +34,17 @@ func (s *svc) GetUsers(count int) (RandomUserResponse, error) {
 
 	uri := fmt.Sprintf("%s%s/?results=%d", s.host, s.route, count)
 
-	log.Printf("randomuser.GetUser: sending request to %s", uri)
+	slog.Debug(
+		"randomuser.GetUser: sending request to uri",
+		"uri", uri)
 
 	res, err := http.Get(uri)
 
 	if err != nil {
-		log.Printf("Randomuser: http client failed %s", err)
+		slog.Error(
+			"Randomuser: http client failed",
+			"error", err)
+
 		defer res.Body.Close()
 
 		return RandomUserResponse{}, err
@@ -48,7 +53,9 @@ func (s *svc) GetUsers(count int) (RandomUserResponse, error) {
 	var data RandomUserResponse
 
 	if err := json.NewDecoder(res.Body).Decode(&data); err != nil {
-		log.Printf("Randomuser: http response decoding failed")
+		slog.Error(
+			"Randomuser: http response decoding failed",
+			"error", err)
 
 		return RandomUserResponse{}, err
 	}
