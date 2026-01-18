@@ -11,8 +11,7 @@ import (
 )
 
 type svc struct {
-	host  string
-	route string
+	randomuserService randomuser.Service
 }
 
 type Service interface {
@@ -20,18 +19,15 @@ type Service interface {
 	GetUserConcurrent(ctx context.Context, count int, isSimLongProcess bool) (UsersResponse, error)
 }
 
-func NewService(host, route string) Service {
+func NewService(service randomuser.Service) Service {
 	return &svc{
-		host:  host,
-		route: route,
+		randomuserService: service,
 	}
 }
 
 func (s *svc) GetUser(count int, isSimLongProcess bool) (UsersResponse, error) {
 
-	extSvc := randomuser.NewService(s.host, s.route)
-
-	data, err := extSvc.GetUsers(count)
+	data, err := s.randomuserService.GetUsers(count)
 
 	if err != nil {
 		log.Printf("Users.GetUser: Error from external Service")
@@ -79,9 +75,7 @@ func (s *svc) GetUser(count int, isSimLongProcess bool) (UsersResponse, error) {
 
 func (s *svc) GetUserConcurrent(ctx context.Context, count int, isSimLongProcess bool) (UsersResponse, error) {
 
-	extSvc := randomuser.NewService(s.host, s.route)
-
-	data, err := extSvc.GetUsers(count)
+	data, err := s.randomuserService.GetUsers(count)
 
 	if err != nil {
 		log.Printf("Users.GetUserConcurrent: Error from external Service")

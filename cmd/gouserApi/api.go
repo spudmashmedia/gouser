@@ -10,6 +10,7 @@ import (
 
 	"github.com/spudmashmedia/gouser/internal/health"
 	"github.com/spudmashmedia/gouser/internal/users"
+	"github.com/spudmashmedia/gouser/pkg/randomuser"
 )
 
 func (app *application) mount() http.Handler {
@@ -25,11 +26,13 @@ func (app *application) mount() http.Handler {
 	r.Get("/health", healthHandler.GetHealth)
 
 	// Users Endpoint
-	usersService :=
-		users.NewService(
+	usersService := users.NewService(
+		randomuser.NewService(
 			app.config.users.host,
 			app.config.users.route,
-		)
+		),
+	)
+
 	usersHandler := users.NewHandler(usersService)
 
 	r.Route("/user", func(r chi.Router) {
