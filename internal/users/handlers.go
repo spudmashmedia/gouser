@@ -3,7 +3,7 @@ package users
 import (
 	"context"
 	"github.com/spudmashmedia/gouser/internal/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 )
@@ -30,13 +30,15 @@ func UserCtx(next http.Handler) http.Handler {
 		// i.e. /user?count={int}
 		paramCount := r.URL.Query().Get("count")
 
-		log.Printf("User.Handler.UserCtx: Got param count %s", paramCount)
+		slog.Debug(
+			"User.Handler.UserCtx: Got param count ",
+			"paramCount", paramCount)
 
 		intCount, err := strconv.Atoi(paramCount)
 
 		if err != nil {
 			intCount = 1
-			log.Printf("UserCtx: paramCount string to int conversion failed, set to 1")
+			slog.Debug("UserCtx: paramCount string to int conversion failed, set to 1")
 		}
 		q.Count = intCount
 
@@ -44,23 +46,32 @@ func UserCtx(next http.Handler) http.Handler {
 		// get concurrent = true/false
 		//
 		paramConcurrent := r.URL.Query().Get("concurrent")
-		log.Printf("User.Handler.UserCtx: Got param concurrent %s", paramConcurrent)
+
+		slog.Debug(
+			"User.Handler.UserCtx: Got param concurrent ",
+			"paramConcurrent", paramConcurrent)
+
 		isConcurrent, err := strconv.ParseBool(paramConcurrent)
 		if err != nil {
 			isConcurrent = false
-			log.Printf("UserCtx: isConcurrent string to bool conversion failed, set to false")
+
+			slog.Debug("UserCtx: isConcurrent string to bool conversion failed, set to false")
 		}
+
 		q.IsConcurrent = isConcurrent
 
 		//
 		// get simLongProcess = true/false
 		//
 		paramSimLongProcess := r.URL.Query().Get("sim_long_proc")
-		log.Printf("User.Handler.UserCtx: Got param sim_long_proc %s", paramSimLongProcess)
+
+		slog.Debug("User.Handler.UserCtx: Got param sim_long_proc",
+			"paramSimLongProcess", paramSimLongProcess)
+
 		isSimLongProcess, err := strconv.ParseBool(paramSimLongProcess)
 		if err != nil {
 			isSimLongProcess = false
-			log.Printf("UserCtx: isSimLongProcess string to bool conversion failed, set to false")
+			slog.Debug("UserCtx: isSimLongProcess string to bool conversion failed, set to false")
 		}
 		q.IsSimLongProcess = isSimLongProcess
 
@@ -81,17 +92,22 @@ func (h *handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	count := q.Count
-	log.Printf("User.Handler.GetUser: Got count %d", count)
+	slog.Debug(
+		"User.Handler.GetUser: Got count",
+		"count", count)
 
 	// validation: make sure at least 1 record
 	if count == 0 {
-		log.Printf("User.Handler.GetUser: Validation - Got 0, set to at least 1 (scenario no count query string param)")
+		slog.Debug("User.Handler.GetUser: Validation - Got 0, set to at least 1 (scenario no count query string param)")
 		count = 1
 	}
 
 	// validation: make sure max 100
 	if count > 5000 {
-		log.Printf("User.Handler.GetUser: Got count %d, cap max to 100", count)
+		slog.Debug(
+			"User.Handler.GetUser: Got count %d, cap max to 100",
+			"count", count)
+
 		count = 5000
 	}
 
@@ -99,16 +115,18 @@ func (h *handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	if q.IsConcurrent {
-		log.Printf("User.Handler.GetUser: call GetUserConcurrent")
+		slog.Debug("User.Handler.GetUser: call GetUserConcurrent")
 		response, err = h.service.GetUserConcurrent(ctx, count, q.IsSimLongProcess)
 	} else {
-		log.Printf("User.Handler.GetUser: call GetUser")
+		slog.Debug("User.Handler.GetUser: call GetUser")
 		response, err = h.service.GetUser(count, q.IsSimLongProcess)
 	}
 
 	if err != nil {
-		log.Println("Something went wrong in handler.GetUser")
-		log.Println(err)
+		slog.Error(
+			"Something went wrong in handler.GetUser",
+			"error", err)
+
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
