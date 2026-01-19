@@ -8,10 +8,15 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 
+	"github.com/spudmashmedia/gouser/internal/config"
 	"github.com/spudmashmedia/gouser/internal/health"
 	"github.com/spudmashmedia/gouser/internal/users"
 	"github.com/spudmashmedia/gouser/pkg/randomuser"
 )
+
+type application struct {
+	config *config.ApiConfig
+}
 
 func (app *application) mount() http.Handler {
 	r := chi.NewRouter()
@@ -28,8 +33,8 @@ func (app *application) mount() http.Handler {
 	// Users Endpoint
 	usersService := users.NewService(
 		randomuser.NewService(
-			app.config.users.host,
-			app.config.users.route,
+			app.config.ExtRandomuser.Host,
+			app.config.ExtRandomuser.Route,
 		),
 	)
 
@@ -45,7 +50,7 @@ func (app *application) mount() http.Handler {
 
 func (app *application) run(h http.Handler) error {
 	srv := &http.Server{
-		Addr:         app.config.addr,
+		Addr:         app.config.GouserApi.Addr,
 		Handler:      h,
 		WriteTimeout: time.Second * 30,
 		ReadTimeout:  time.Second * 10,
@@ -54,26 +59,7 @@ func (app *application) run(h http.Handler) error {
 
 	slog.Info(
 		"Server started at ",
-		"app.config.addr", app.config.addr)
+		"app.config.addr", app.config.GouserApi.Addr)
 
 	return srv.ListenAndServe()
-}
-
-type application struct {
-	config config
-}
-
-type config struct {
-	addr  string
-	db    dbConfig
-	users usersConfig
-}
-
-type dbConfig struct {
-	dsn string
-}
-
-type usersConfig struct {
-	host  string
-	route string
 }

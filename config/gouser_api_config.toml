@@ -1,0 +1,9 @@
+[logger]
+log_level = "info"
+
+[gouser-api]
+addr = ":8080"
+
+[ext-randomuser]
+host = "https://randomuser.me"
+route = "/api"

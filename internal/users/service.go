@@ -56,9 +56,11 @@ func (s *svc) GetUser(count int, isSimLongProcess bool) (UsersResponse, error) {
 	for i := 0; i < len(data.Results); i++ {
 		// log.Printf("Task %d: Started", i)
 		var usr User
-		usr = User{}
-		usr.RuToUser(&data.Results[i])
-		dto.Results = append(dto.Results, usr)
+		usr, err := ConvertRuToUser(&data.Results[i])
+
+		if err == nil {
+			dto.Results = append(dto.Results, usr)
+		}
 
 		if isSimLongProcess {
 			time.Sleep(10 * time.Millisecond)
@@ -201,8 +203,11 @@ func processRuToUserItems(ctx context.Context, index int, jobs <-chan randomuser
 			if !ok {
 				return // jobs channel closed, get out
 			}
-			usr := User{}
-			usr.RuToUser(&jobItem)
+
+			usr, err := ConvertRuToUser(&jobItem)
+			if err != nil {
+				return
+			}
 
 			// NOTE: to prevent Log from using mutex between go routines
 			//       and slowing down process, comment out debug logging
@@ -221,6 +226,7 @@ func processRuToUserItems(ctx context.Context, index int, jobs <-chan randomuser
 			// send processed item back to results + handle context cancellation
 			select {
 			case results <- usr:
+
 			case <-ctx.Done():
 				return
 			}

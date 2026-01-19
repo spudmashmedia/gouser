@@ -63,9 +63,11 @@ func (cArray Contacts) FindContactByType(queryContactType string) (string, error
 	return cArray[contactId].Value, nil
 }
 
-func (u *User) RuToUser(src *randomuser.User) *User {
+func ConvertRuToUser(src *randomuser.User) (User, error) {
+	u := User{}
+
 	if src == nil {
-		return u
+		return u, fmt.Errorf("src parameter is empty")
 	}
 
 	u.Name = Name{
@@ -88,5 +90,5 @@ func (u *User) RuToUser(src *randomuser.User) *User {
 		Value: src.Cell,
 	})
 
-	return u
+	return u, nil
 }
