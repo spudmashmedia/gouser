@@ -1,7 +1,9 @@
 package users
 
 import (
+	"fmt"
 	"github.com/spudmashmedia/gouser/pkg/randomuser"
+	"slices"
 )
 
 type QueryData struct {
@@ -15,8 +17,8 @@ type UsersResponse struct {
 }
 
 type User struct {
-	Name     Name      `json:"name"`
-	Contacts []Contact `json:"contacts"`
+	Name     Name     `json:"name"`
+	Contacts Contacts `json:"contacts"`
 }
 
 type Name struct {
@@ -48,9 +50,24 @@ type Contact struct {
 	Value string `json:"value"`
 }
 
-func (u *User) RuToUser(src *randomuser.User) *User {
+type Contacts []Contact
+
+func (cArray Contacts) FindContactByType(queryContactType string) (string, error) {
+	contactId := slices.IndexFunc(cArray, func(item Contact) bool {
+		return item.Type == queryContactType
+	})
+
+	if contactId == -1 {
+		return "", fmt.Errorf("No Items found")
+	}
+	return cArray[contactId].Value, nil
+}
+
+func ConvertRuToUser(src *randomuser.User) (User, error) {
+	u := User{}
+
 	if src == nil {
-		return u
+		return u, fmt.Errorf("src parameter is empty")
 	}
 
 	u.Name = Name{
@@ -73,5 +90,5 @@ func (u *User) RuToUser(src *randomuser.User) *User {
 		Value: src.Cell,
 	})
 
-	return u
+	return u, nil
 }
