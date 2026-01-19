@@ -1,7 +1,9 @@
 package users
 
 import (
+	"fmt"
 	"github.com/spudmashmedia/gouser/pkg/randomuser"
+	"slices"
 )
 
 type QueryData struct {
@@ -15,8 +17,8 @@ type UsersResponse struct {
 }
 
 type User struct {
-	Name     Name      `json:"name"`
-	Contacts []Contact `json:"contacts"`
+	Name     Name     `json:"name"`
+	Contacts Contacts `json:"contacts"`
 }
 
 type Name struct {
@@ -46,6 +48,19 @@ func (ct ContactType) String() string {
 type Contact struct {
 	Type  string `json:"type"`
 	Value string `json:"value"`
+}
+
+type Contacts []Contact
+
+func (cArray Contacts) FindContactByType(queryContactType string) (string, error) {
+	contactId := slices.IndexFunc(cArray, func(item Contact) bool {
+		return item.Type == queryContactType
+	})
+
+	if contactId == -1 {
+		return "", fmt.Errorf("No Items found")
+	}
+	return cArray[contactId].Value, nil
 }
 
 func (u *User) RuToUser(src *randomuser.User) *User {
