@@ -13,7 +13,7 @@ func main() {
 	cfg, err := config.LoadConfig()
 
 	if err != nil {
-		panic(fmt.Errorf("Config loading failed", "error", err))
+		panic(fmt.Errorf("Config loading failed %s", err))
 	}
 
 	opt := &slog.HandlerOptions{
