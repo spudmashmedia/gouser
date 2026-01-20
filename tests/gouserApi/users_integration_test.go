@@ -17,6 +17,36 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// Integration Test Entrypoint
+func TestGetUserEndpoint(t *testing.T) {
+	// Arrange: Init Router
+	router := buildUserRouter()
+
+	// Arrange: Build Test Server
+	ts := httptest.NewServer(router)
+	defer ts.Close()
+
+	t.Run(
+		"Should return HTTP 404 record When incorrect route /user/unexpected is called",
+		usersShouldReturnNotFoundWhenRouteIsIncorrect(ts.URL))
+
+	t.Run(
+		"Should return 1 User record When No Query Parameters",
+		usersShouldReturnOneRecordWhenNoQueryParams(ts.URL))
+
+	t.Run(
+		"Should return 1 User record When QueryParm Count=0",
+		usersShouldReturnSingleRecordWhenQueryParamIsZero(ts.URL))
+
+	t.Run(
+		"Should return 5 User records When QueryParam Count is 5",
+		usersShouldReturnFiveRecordsWhenQueryParamIsFive(ts.URL))
+
+	t.Run(
+		"Should return maximum 5000 User records When QueryParam Count is 5001",
+		usersShouldReturnMaxRecordsWhenQueryParamIs5001(ts.URL))
+}
+
 func buildUserRouter() *chi.Mux {
 
 	r := chi.NewRouter()
@@ -35,17 +65,10 @@ func buildUserRouter() *chi.Mux {
 	return r
 }
 
-func TestGetUserEndpoint(t *testing.T) {
-	// Arrange: Init Router
-	router := buildUserRouter()
-
-	// Arrange: Build Test Server
-	ts := httptest.NewServer(router)
-	defer ts.Close()
-
-	t.Run("Should return HTTP 404 record When incorrect route /user/unexpected is called", func(t *testing.T) {
+func usersShouldReturnNotFoundWhenRouteIsIncorrect(sutBaseUrl string) func(t *testing.T) {
+	return func(t *testing.T) {
 		// Arange: query param setup
-		testUrl := fmt.Sprintf("%s/user/unexpected", ts.URL)
+		testUrl := fmt.Sprintf("%s/user/unexpected", sutBaseUrl)
 
 		// Act
 		t.Logf("Testing url: '%s'", testUrl)
@@ -56,13 +79,15 @@ func TestGetUserEndpoint(t *testing.T) {
 		defer resp.Body.Close()
 
 		assert.Equal(t, http.StatusNotFound, resp.StatusCode, "Should return a HTTP 404 Not Found status code")
-	})
+	}
+}
 
-	t.Run("Should return 1 User record When No Query Parameters", func(t *testing.T) {
+func usersShouldReturnOneRecordWhenNoQueryParams(sutBaseUrl string) func(t *testing.T) {
+	return func(t *testing.T) {
 		// Arange: query param setup
 		expectedCount := 1
 
-		testUrl := fmt.Sprintf("%s/user", ts.URL)
+		testUrl := fmt.Sprintf("%s/user", sutBaseUrl)
 
 		// Act
 		t.Logf("Testing url: '%s'", testUrl)
@@ -87,13 +112,16 @@ func TestGetUserEndpoint(t *testing.T) {
 
 		assert.NotEmpty(t, actualResponse, "Actual Response should not be empty")
 		assert.Equal(t, expectedCount, len(actualResponse.Results), fmt.Sprintf("Results should equal %d", expectedCount))
-	})
+	}
+}
 
-	t.Run("Should return 1 User record When QueryParm Count=0", func(t *testing.T) {
+func usersShouldReturnSingleRecordWhenQueryParamIsZero(sutBaseUrl string) func(t *testing.T) {
+
+	return func(t *testing.T) {
 		// Arange: query param setup
 		expectedCount := 1
 
-		testUrl := fmt.Sprintf("%s/user?count=0", ts.URL)
+		testUrl := fmt.Sprintf("%s/user?count=0", sutBaseUrl)
 
 		// Act
 		t.Logf("Testing url: '%s'", testUrl)
@@ -118,15 +146,17 @@ func TestGetUserEndpoint(t *testing.T) {
 
 		assert.NotEmpty(t, actualResponse, "Actual Response should not be empty")
 		assert.Equal(t, expectedCount, len(actualResponse.Results), fmt.Sprintf("Results should equal %d", expectedCount))
-	})
+	}
+}
 
-	t.Run("Should return 5 User records When QueryParam Count is 5", func(t *testing.T) {
+func usersShouldReturnFiveRecordsWhenQueryParamIsFive(sutBaseUrl string) func(t *testing.T) {
+	return func(t *testing.T) {
 
 		// Arange: query param setup
 		testCount := 5
 		expectedCount := 5
 
-		testUrl := fmt.Sprintf("%s/user?count=%d", ts.URL, testCount)
+		testUrl := fmt.Sprintf("%s/user?count=%d", sutBaseUrl, testCount)
 
 		// Act
 		t.Logf("Testing url: '%s'", testUrl)
@@ -151,15 +181,17 @@ func TestGetUserEndpoint(t *testing.T) {
 
 		assert.NotEmpty(t, actualResponse, "Actual Response should not be empty")
 		assert.Equal(t, expectedCount, len(actualResponse.Results), fmt.Sprintf("Results should equal %d", expectedCount))
-	})
+	}
+}
 
-	t.Run("Should return maximum 5000 User records When QueryParam Count is 5001", func(t *testing.T) {
+func usersShouldReturnMaxRecordsWhenQueryParamIs5001(sutBaseUrl string) func(t *testing.T) {
+	return func(t *testing.T) {
 
 		// Arange: query param setup
 		testCount := 5001
 		expectedCount := 5000
 
-		testUrl := fmt.Sprintf("%s/user?count=%d", ts.URL, testCount)
+		testUrl := fmt.Sprintf("%s/user?count=%d", sutBaseUrl, testCount)
 
 		// Act
 		t.Logf("Testing url: '%s'", testUrl)
@@ -184,5 +216,5 @@ func TestGetUserEndpoint(t *testing.T) {
 
 		assert.NotEmpty(t, actualResponse, "Actual Response should not be empty")
 		assert.Equal(t, expectedCount, len(actualResponse.Results), fmt.Sprintf("Results should equal %d", expectedCount))
-	})
+	}
 }

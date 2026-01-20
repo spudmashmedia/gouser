@@ -13,14 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func buildHealthRouter() *chi.Mux {
-
-	r := chi.NewRouter()
-	api.RegisterHealthRouter(r)
-
-	return r
-}
-
+// Integration Tests entrypoint
 func TestGetHealthEndpoint(t *testing.T) {
 	// Arrange: Init Router
 	router := buildHealthRouter()
@@ -29,11 +22,19 @@ func TestGetHealthEndpoint(t *testing.T) {
 	ts := httptest.NewServer(router)
 	defer ts.Close()
 
-	t.Run("Should return HTTP 200 record when route /health is called", HealthShouldReturnOk(ts.URL))
-	t.Run("Should return HTTP 404 when route /health/unexpected is called", HealthShouldReturnNotFound(ts.URL))
+	t.Run("Should return HTTP 200 record when route /health is called", healthShouldReturnOk(ts.URL))
+	t.Run("Should return HTTP 404 when route /health/unexpected is called", healthShouldReturnNotFound(ts.URL))
 }
 
-func HealthShouldReturnNotFound(sutBaseUrl string) func(t *testing.T) {
+func buildHealthRouter() *chi.Mux {
+
+	r := chi.NewRouter()
+	api.RegisterHealthRouter(r)
+
+	return r
+}
+
+func healthShouldReturnNotFound(sutBaseUrl string) func(t *testing.T) {
 	return func(t *testing.T) {
 		// Arange: query param setup
 		testUrl := fmt.Sprintf("%s/health/unexpected", sutBaseUrl)
@@ -50,7 +51,7 @@ func HealthShouldReturnNotFound(sutBaseUrl string) func(t *testing.T) {
 	}
 }
 
-func HealthShouldReturnOk(sutBaseUrl string) func(*testing.T) {
+func healthShouldReturnOk(sutBaseUrl string) func(*testing.T) {
 	return func(t *testing.T) {
 		// Arange: query param setup
 		testUrl := fmt.Sprintf("%s/health", sutBaseUrl)
