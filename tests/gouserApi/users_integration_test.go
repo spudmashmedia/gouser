@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/spudmashmedia/gouser/internal/api"
 	"github.com/spudmashmedia/gouser/internal/users"
 	"github.com/spudmashmedia/gouser/pkg/randomuser"
 
@@ -23,19 +24,13 @@ func BuildRouter() *chi.Mux {
 	host := "https://randomuser.me"
 	route := "/api"
 
-	usersHandler := users.NewHandler(
-		users.NewService(
-			randomuser.NewService(
-				host,
-				route,
-			),
+	svc := users.NewService(
+		randomuser.NewService(
+			host,
+			route,
 		),
 	)
-
-	r.Route("/user", func(r chi.Router) {
-		r.Use(users.UserCtx)
-		r.Get("/", usersHandler.GetUser)
-	})
+	api.RegisterUserRouter(r, svc)
 
 	return r
 }

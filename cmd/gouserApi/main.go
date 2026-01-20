@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/spudmashmedia/gouser/internal/api"
 	"github.com/spudmashmedia/gouser/internal/config"
 )
 
@@ -23,11 +24,9 @@ func main() {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, opt))
 	slog.SetDefault(logger)
 
-	api := application{
-		config: cfg,
-	}
+	app := api.NewApplication(cfg)
 
-	if err := api.run(api.mount()); err != nil {
+	if err := app.Run(app.Mount()); err != nil {
 		slog.Error(
 			"Server failed to start",
 			"error", err)

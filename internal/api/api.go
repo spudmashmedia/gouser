@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"log/slog"
@@ -18,7 +18,13 @@ type application struct {
 	config *config.ApiConfig
 }
 
-func (app *application) mount() http.Handler {
+func NewApplication(config *config.ApiConfig) *application {
+	return &application{
+		config: config,
+	}
+}
+
+func (app *application) Mount() http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.RequestID)
 	r.Use(middleware.RealIP)
@@ -38,17 +44,20 @@ func (app *application) mount() http.Handler {
 		),
 	)
 
-	usersHandler := users.NewHandler(usersService)
-
-	r.Route("/user", func(r chi.Router) {
-		r.Use(users.UserCtx)
-		r.Get("/", usersHandler.GetUser)
-	})
+	RegisterUserRouter(r, usersService)
 
 	return r
 }
 
-func (app *application) run(h http.Handler) error {
+func RegisterUserRouter(r *chi.Mux, svc users.Service) {
+	usersHandler := users.NewHandler(svc)
+	r.Route("/user", func(r chi.Router) {
+		r.Use(users.UserCtx)
+		r.Get("/", usersHandler.GetUser)
+	})
+}
+
+func (app *application) Run(h http.Handler) error {
 	srv := &http.Server{
 		Addr:         app.config.GouserApi.Addr,
 		Handler:      h,
