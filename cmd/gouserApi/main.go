@@ -7,6 +7,7 @@ import (
 
 	"github.com/spudmashmedia/gouser/internal/api"
 	"github.com/spudmashmedia/gouser/internal/config"
+	"github.com/spudmashmedia/gouser/internal/logger"
 )
 
 func main() {
@@ -17,12 +18,7 @@ func main() {
 		panic(fmt.Errorf("Config loading failed %s", err))
 	}
 
-	opt := &slog.HandlerOptions{
-		Level: slog.LevelDebug,
-	}
-
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, opt))
-	slog.SetDefault(logger)
+	logger.RegisterLogger(cfg.Logger.LogLevel)
 
 	app := api.NewApplication(cfg)
 
