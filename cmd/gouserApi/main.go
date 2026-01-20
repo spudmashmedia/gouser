@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+	config.RegisterTerminalFlags()
 
 	cfg, err := config.LoadConfig()
 

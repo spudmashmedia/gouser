@@ -45,6 +45,10 @@ func TestGetUserEndpoint(t *testing.T) {
 	t.Run(
 		"Should return maximum 5000 User records When QueryParam Count is 5001",
 		usersShouldReturnMaxRecordsWhenQueryParamIs5001(ts.URL))
+
+	t.Run(
+		"Should process 5000 User records concurrently When Query Param Count is 5001 and Concurrent is True",
+		usersShouldReturnMaxRecordsWhenQueryParamIs5001Concurrent(ts.URL))
 }
 
 func buildUserRouter() *chi.Mux {
@@ -192,6 +196,41 @@ func usersShouldReturnMaxRecordsWhenQueryParamIs5001(sutBaseUrl string) func(t *
 		expectedCount := 5000
 
 		testUrl := fmt.Sprintf("%s/user?count=%d", sutBaseUrl, testCount)
+
+		// Act
+		t.Logf("Testing url: '%s'", testUrl)
+		resp, err := http.Get(testUrl)
+
+		// Assert
+		require.NoError(t, err, fmt.Sprintf("%s should not fail", testUrl))
+		defer resp.Body.Close()
+
+		body, _ := io.ReadAll(resp.Body) // this is a []byte
+		assert.NotEmpty(t, body, "Response Body should not be empty")
+
+		// // Debug: uncomment this to view Raw Response body
+		// t.Logf("Raw response body: %s", string(body))
+
+		// assert: cast back to a UserResponse  test the count
+		var actualResponse users.UsersResponse
+
+		err = json.Unmarshal(body, &actualResponse)
+
+		require.NoError(t, err, fmt.Sprintf("json.Unmarshal should not fail: %s", err))
+
+		assert.NotEmpty(t, actualResponse, "Actual Response should not be empty")
+		assert.Equal(t, expectedCount, len(actualResponse.Results), fmt.Sprintf("Results should equal %d", expectedCount))
+	}
+}
+
+func usersShouldReturnMaxRecordsWhenQueryParamIs5001Concurrent(sutBaseUrl string) func(t *testing.T) {
+	return func(t *testing.T) {
+
+		// Arange: query param setup
+		testCount := 5001
+		expectedCount := 5000
+
+		testUrl := fmt.Sprintf("%s/user?count=%d&concurrent=true", sutBaseUrl, testCount)
 
 		// Act
 		t.Logf("Testing url: '%s'", testUrl)

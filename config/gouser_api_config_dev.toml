@@ -1,8 +1,8 @@
 [environment]
-env = "prod"
+env = "dev"
 
 [logger]
-log_level = "error"
+log_level = "debug"
 
 [gouser-api]
 addr = ":8080"

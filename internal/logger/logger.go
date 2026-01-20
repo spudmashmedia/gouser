@@ -37,3 +37,12 @@ func RegisterLogger(logLevel string) {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, opt))
 	slog.SetDefault(logger)
 }
+
+func NewForcedLogger() *slog.Logger {
+	opt := &slog.HandlerOptions{
+		Level: slog.LevelInfo,
+	}
+
+	l := slog.New(slog.NewJSONHandler(os.Stdout, opt))
+	return l
+}
