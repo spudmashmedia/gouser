@@ -1,4 +1,4 @@
-package integration_test
+package api
 
 import (
 	"encoding/json"
@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/spudmashmedia/gouser/internal/api"
 	"github.com/spudmashmedia/gouser/internal/users"
 	"github.com/spudmashmedia/gouser/pkg/randomuser"
 
@@ -16,33 +17,27 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func BuildRouter() *chi.Mux {
+func buildUserRouter() *chi.Mux {
 
 	r := chi.NewRouter()
 
 	host := "https://randomuser.me"
 	route := "/api"
 
-	usersHandler := users.NewHandler(
-		users.NewService(
-			randomuser.NewService(
-				host,
-				route,
-			),
+	svc := users.NewService(
+		randomuser.NewService(
+			host,
+			route,
 		),
 	)
-
-	r.Route("/user", func(r chi.Router) {
-		r.Use(users.UserCtx)
-		r.Get("/", usersHandler.GetUser)
-	})
+	api.RegisterUserRouter(r, svc)
 
 	return r
 }
 
 func TestGetUserEndpoint(t *testing.T) {
 	// Arrange: Init Router
-	router := BuildRouter()
+	router := buildUserRouter()
 
 	// Arrange: Build Test Server
 	ts := httptest.NewServer(router)
