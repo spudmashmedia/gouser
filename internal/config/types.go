@@ -1,5 +1,21 @@
 package config
 
+import ()
+
+const (
+	C_ENV_DEV  string = "dev"
+	C_ENV_TEST string = "test"
+	C_ENV_PROD string = "prod"
+)
+
+const (
+	FLAG_ENV = "env"
+)
+
+const (
+	C_CONFIG_BASE_NAME = "gouser_api_config"
+)
+
 type ApiConfig struct {
 	Logger struct {
 		LogLevel string `mapstructure:"log_level"`

@@ -1,7 +1,7 @@
 package api
 
 import (
-	"log/slog"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -10,6 +10,7 @@ import (
 
 	"github.com/spudmashmedia/gouser/internal/config"
 	"github.com/spudmashmedia/gouser/internal/health"
+	"github.com/spudmashmedia/gouser/internal/logger"
 	"github.com/spudmashmedia/gouser/internal/users"
 	"github.com/spudmashmedia/gouser/pkg/randomuser"
 )
@@ -69,9 +70,13 @@ func (app *application) Run(h http.Handler) error {
 		IdleTimeout:  time.Minute,
 	}
 
-	slog.Info(
-		"Server started at ",
-		"app.config.addr", app.config.GouserApi.Addr)
+	fLog := logger.NewForcedLogger()
+
+	fLog.Info(
+		fmt.Sprintf(
+			"[env:%s] Server started at %s",
+			config.GetEnv(),
+			app.config.GouserApi.Addr))
 
 	return srv.ListenAndServe()
 }
