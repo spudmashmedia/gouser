@@ -1,4 +1,4 @@
-package integration_test
+package api
 
 import (
 	"encoding/json"
@@ -17,7 +17,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func BuildRouter() *chi.Mux {
+func buildUserRouter() *chi.Mux {
 
 	r := chi.NewRouter()
 
@@ -37,7 +37,7 @@ func BuildRouter() *chi.Mux {
 
 func TestGetUserEndpoint(t *testing.T) {
 	// Arrange: Init Router
-	router := BuildRouter()
+	router := buildUserRouter()
 
 	// Arrange: Build Test Server
 	ts := httptest.NewServer(router)
