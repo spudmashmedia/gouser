@@ -29,24 +29,14 @@ func TestGetHealthEndpoint(t *testing.T) {
 	ts := httptest.NewServer(router)
 	defer ts.Close()
 
-	t.Run("Should return HTTP 200 record when route /health is called", func(t *testing.T) {
+	t.Run("Should return HTTP 200 record when route /health is called", HealthShouldReturnOk(ts.URL))
+	t.Run("Should return HTTP 404 when route /health/unexpected is called", HealthShouldReturnNotFound(ts.URL))
+}
+
+func HealthShouldReturnNotFound(sutBaseUrl string) func(t *testing.T) {
+	return func(t *testing.T) {
 		// Arange: query param setup
-		testUrl := fmt.Sprintf("%s/health", ts.URL)
-
-		// Act
-		t.Logf("Testing url: '%s'", testUrl)
-		resp, err := http.Get(testUrl)
-
-		// Assert
-		require.NoError(t, err, fmt.Sprintf("%s should not fail", testUrl))
-		defer resp.Body.Close()
-
-		assert.Equal(t, http.StatusOK, resp.StatusCode, "Should return a HTTP 200 status code")
-	})
-
-	t.Run("Should return HTTP 404 when route /health/unexpected is called", func(t *testing.T) {
-		// Arange: query param setup
-		testUrl := fmt.Sprintf("%s/health/unexpected", ts.URL)
+		testUrl := fmt.Sprintf("%s/health/unexpected", sutBaseUrl)
 
 		// Act
 		t.Logf("Testing url: '%s'", testUrl)
@@ -57,5 +47,22 @@ func TestGetHealthEndpoint(t *testing.T) {
 		defer resp.Body.Close()
 
 		assert.Equal(t, http.StatusNotFound, resp.StatusCode, "Should return a HTTP 404 status code")
-	})
+	}
+}
+
+func HealthShouldReturnOk(sutBaseUrl string) func(*testing.T) {
+	return func(t *testing.T) {
+		// Arange: query param setup
+		testUrl := fmt.Sprintf("%s/health", sutBaseUrl)
+
+		// Act
+		t.Logf("Testing url: '%s'", testUrl)
+		resp, err := http.Get(testUrl)
+
+		// Assert
+		require.NoError(t, err, fmt.Sprintf("%s should not fail", testUrl))
+		defer resp.Body.Close()
+
+		assert.Equal(t, http.StatusOK, resp.StatusCode, "Should return a HTTP 200 status code")
+	}
 }
