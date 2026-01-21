@@ -13,9 +13,17 @@
 
 ## ALL TEST
 ### Run (-force run incase cached)
+
+#### Using Go Test 
 ```sh
-> go test -v ./... -count=1
+go test -v ./... -count=1
 ```
+
+#### Using Make
+```sh
+make test
+```
+
 
 ## Integration Tests
 
@@ -24,12 +32,12 @@ Integration tests are located in /tests folder.
 ### Run
 
 ```sh
-> go test ./tests/...
+go test ./tests/...
 ```
 
 With Verbose
 ```sh
-> go test -v ./tests/...
+go test -v ./tests/...
 ```
 
 ## Unit Tests
@@ -38,7 +46,7 @@ Unit tests are coupled to the file under test and located in the same folder.
 
 ### Run
 ```sh
-> go test -v ./cmd/... ./internal/... ./pkg/...
+go test -v ./cmd/... ./internal/... ./pkg/...
 ```
 
 ## Profiling
@@ -54,17 +62,17 @@ Chi routers have middleware that will output a pprof profile for performance ana
 
 - env==debug
 ```sh
-  go run cmd/gouserApi/*.go --env=debug
+go run cmd/gouserApi/*.go --env=debug
 ```
 
 - env==dev
 ```sh
-  go run cmd/gouserApi/*.go --env=dev
+go run cmd/gouserApi/*.go --env=dev
 ```
 
 - env==test
 ```sh
-  go run cmd/gouserApi/*.go --env=test
+go run cmd/gouserApi/*.go --env=test
 ```
 
 NOTE: Once started, a DEBUG message will appear in the logs:
@@ -73,7 +81,7 @@ NOTE: Once started, a DEBUG message will appear in the logs:
 #### Terminal 2 - Launch pprof profile generator
 
 ```sh
-  go tool pprof http://localhost:8080/debug/pprof/profile
+go tool pprof http://localhost:8080/debug/pprof/profile
 ```
 
 You can also set into background mode or create a daemon.
@@ -85,7 +93,7 @@ NOTE: Wait for this terminal to return "Entering interactive mode" before procee
 Running the follow command will aggregate the data and open a Web UI on localhost:9090 automatically
 
 ```sh
-  go tool pprof -http:localhost:9090 http://localhost:8080/debug/pprof/profile
+go tool pprof -http:localhost:9090 http://localhost:8080/debug/pprof/profile
 ```
 
 NOTE: if you get the error "Could not enable CPU profiling: cpu profiling already in use", just wait for Terminal 2 to enter Interactive mode.
