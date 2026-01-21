@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -45,6 +46,12 @@ func (app *application) Mount() http.Handler {
 	RegisterHealthRouter(r)
 	RegisterUserRouter(r, usersService)
 
+	// Enable the /debug for PPROF profile output
+	if app.config.Profiler.EnablePprof {
+		slog.Debug("***WARNING***: PPROF /debug endpoint is enabled")
+		RegisterProfilerRouter(r)
+	}
+
 	return r
 }
 
@@ -59,6 +66,10 @@ func RegisterUserRouter(r *chi.Mux, svc users.Service) {
 		r.Use(users.UserCtx)
 		r.Get("/", usersHandler.GetUser)
 	})
+}
+
+func RegisterProfilerRouter(r *chi.Mux) {
+	r.Mount("/debug", middleware.Profiler())
 }
 
 func (app *application) Run(h http.Handler) error {

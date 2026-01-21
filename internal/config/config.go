@@ -23,6 +23,8 @@ func LoadConfig() (*ApiConfig, error) {
 
 	// TOML config
 	switch strings.ToLower(paramFlagEnv) {
+	case C_ENV_DEBUG:
+		viper.SetConfigName(fmt.Sprintf("%s_%s", C_CONFIG_BASE_NAME, C_ENV_DEBUG))
 
 	case C_ENV_DEV:
 		viper.SetConfigName(fmt.Sprintf("%s_%s", C_CONFIG_BASE_NAME, C_ENV_DEV))

@@ -40,3 +40,53 @@ Unit tests are coupled to the file under test and located in the same folder.
 ```sh
 > go test -v ./cmd/... ./internal/... ./pkg/...
 ```
+
+## Profiling
+
+Chi routers have middleware that will output a pprof profile for performance analysis. the **/debug** endpoint will be available for environments (--env):
+- debug
+- dev
+- test
+
+### How to setup
+
+#### Terminal 1 - Start API
+
+- env==debug
+```sh
+  go run cmd/gouserApi/*.go --env=debug
+```
+
+- env==dev
+```sh
+  go run cmd/gouserApi/*.go --env=dev
+```
+
+- env==test
+```sh
+  go run cmd/gouserApi/*.go --env=test
+```
+
+NOTE: Once started, a DEBUG message will appear in the logs:
+"***WARNING:***: PPROF /debug endpoint is enabled"
+
+#### Terminal 2 - Launch pprof profile generator
+
+```sh
+  go tool pprof http://localhost:8080/debug/pprof/profile
+```
+
+You can also set into background mode or create a daemon.
+Once run, any HTTP traffic to the API triggered will trigger the middleware to collect api and system telemetry (cpu, memory, calls etc...)
+
+NOTE: Wait for this terminal to return "Entering interactive mode" before proceeding with Terminal 3.
+
+#### Terminal 3 - Launch pprof profile aggregator + Web UI
+Running the follow command will aggregate the data and open a Web UI on localhost:9090 automatically
+
+```sh
+  go tool pprof -http:localhost:9090 http://localhost:8080/debug/pprof/profile
+```
+
+NOTE: if you get the error "Could not enable CPU profiling: cpu profiling already in use", just wait for Terminal 2 to enter Interactive mode.
+

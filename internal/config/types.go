@@ -3,9 +3,10 @@ package config
 import ()
 
 const (
-	C_ENV_DEV  string = "dev"
-	C_ENV_TEST string = "test"
-	C_ENV_PROD string = "prod"
+	C_ENV_DEBUG string = "debug"
+	C_ENV_DEV   string = "dev"
+	C_ENV_TEST  string = "test"
+	C_ENV_PROD  string = "prod"
 )
 
 const (
@@ -29,4 +30,8 @@ type ApiConfig struct {
 		Host  string `mapstructure:"host"`
 		Route string `mapstructure:"route"`
 	} `mapstructure:"ext-randomuser"`
+
+	Profiler struct {
+		EnablePprof bool `mapstructure:"enable_pprof"`
+	} `mapstructure:"profiler"`
 }

@@ -1,8 +1,8 @@
 [environment]
-env = "test"
+env = "dev"
 
 [logger]
-log_level = "info"
+log_level = "debug"
 
 [gouser-api]
 addr = ":8080"
@@ -12,4 +12,4 @@ host = "https://randomuser.me"
 route = "/api"
 
 [profiler]
-enable_pprof = false
+enable_pprof = true
