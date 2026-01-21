@@ -35,6 +35,21 @@ or
 > go build -o bin/gouserApi cmd/gouserApi/*.go --env=test
 ```
 
+### Debug
+This mode contains the /debug pprof profile that will emit telemetry for troubleshooting
+
+#### configs
+|env|config|
+|--|--|
+|test| [/config/gouser_api_config_debug.toml](../config/gouser_api_config_debug.toml)|
+
+NOTE: Please pay attention to the profiler section of the config
+
+#### Command
+```sh
+> go build -o bin/gouserApi cmd/gouserApi/*.go --env=debug
+```
+
 ### Production
 #### configs
 |env|config|

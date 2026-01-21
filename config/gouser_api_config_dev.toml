@@ -10,3 +10,6 @@ addr = ":8080"
 [ext-randomuser]
 host = "https://randomuser.me"
 route = "/api"
+
+[profiler]
+enable_pprof = false
