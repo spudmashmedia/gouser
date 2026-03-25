@@ -1,4 +1,5 @@
 # gouser
+[![My Skills](https://skillicons.dev/icons?i=go)](https://skillicons.dev)
 
 A Go API Template using [Chi Router](https://go-chi.io/#/README) that integrates with [randomuser.me](https://randomuser.me/documentation) API.
 
