@@ -1,6 +1,6 @@
 # gouser
 
-A Go API using [Chi Router](https://go-chi.io/#/README) that integrates with [randomuser.me](https://randomuser.me/documentation) API.
+A Go API Template using [Chi Router](https://go-chi.io/#/README) that integrates with [randomuser.me](https://randomuser.me/documentation) API.
 
 This repo demonstrates:
   - Go Chi Router REST API
@@ -8,6 +8,14 @@ This repo demonstrates:
   - Go routines for simple and long running loads using sync.Waitgroup and channels
   - Proxy routes
   - Go Unit Testing
+
+# Quick Start - Generating A New Project From This Template
+Assuming we called our new API "myservice" we use [npx degit](https://www.npmjs.com/package/degit) to create a fresh project by cloning this template:
+```
+  mkdir myservice
+  cd myservice
+  npx degit spudmashmedia/gouser#master
+```
 
 # Getting Started
 - [Prequisite Before Starting](/docs/prerequisite.md)
