@@ -7,6 +7,16 @@
 sh scripts/build-api
 ```
 
+### Docker Build
+```sh
+docker build -t gouser .
+```
+
+```sh
+docker run -d -it --name gouser -p 8080:8080 gouser
+```
+
+
 ### Using Make
 
 #### Build
